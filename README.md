@@ -5,9 +5,13 @@ Dans ce tutoriel, nous allons utiliser les différents technologies de Docker : 
 Ce schéma vous expliquera ce qu'on va réaliser :
 //image here
 
-## Installation
-À noter que ce tutoriel a été réalisé sur Mac OS X (10.9.3)
+> À noter que ce tutoriel a été réalisé sur Mac OS X (10.9.3)
 
-L'installation de Docker se fait via Docker Toolbox qui contient un ensemble d'outils comme la `Docker machine`, `Kitematic` et `Virtualbox`.
+## Pré-requis
+Docker-machine installé.
 
-Docker toolbox est disponible pour les versions de Mac OS X 10.8 
+
+
+L'installation de Docker se fait via Docker Toolbox.
+
+> Docker toolbox est disponible pour les versions de Mac OS X 10.8 
