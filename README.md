@@ -39,7 +39,7 @@ Swarm fonctionne en tant qu'un conteneur Docker, télécharger l'image ainsi
 $ docker pull swarm
 ```
 
-## Creéation du Docker Swarm Cluster
+## Création du Docker Swarm Cluster
 Le Swarm cluster va englober les noœuds qu'on va créer et utiliser plus tard. La création du cluster retourne un ID qui est important pour la création des noœuds.
 
 ```
@@ -59,4 +59,7 @@ Status: Downloaded newer image for swarm:latest
 5438f046c14733d64b72785de46fb167
 ```
 
-Dans ce cas le identifiant du cluster est `5438f046c14733d64b72785de46fb167`
+Dans ce cas le identifiant du cluster est `5438f046c14733d64b72785de46fb167`. On passe à la création du Swarm master, il ne faut pas remplacer `Cluster_ID` par la valeur retournée sur votre terminal:
+```
+docker-machine create -d virtualbox --swarm --swarm-master --swarm-discovery token://Cluster_ID swarm-master
+```
