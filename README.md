@@ -43,7 +43,7 @@ $ docker pull swarm
 Le Swarm cluster va englober les noœuds qu'on va créer et utiliser plus tard. La création du cluster retourne un ID qui est important pour la création des noœuds.
 
 ```
-docker run swarm create
+$ docker run swarm create
 Unable to find image 'swarm:latest' locally
 latest: Pulling from library/swarm
 d681c900c6e3: Pull complete 
@@ -61,5 +61,33 @@ Status: Downloaded newer image for swarm:latest
 
 Dans ce cas le identifiant du cluster est `5438f046c14733d64b72785de46fb167`. On passe à la création du Swarm master, il ne faut pas remplacer `Cluster_ID` par la valeur retournée sur votre terminal:
 ```
-docker-machine create -d virtualbox --swarm --swarm-master --swarm-discovery token://Cluster_ID swarm-master
+$ docker-machine create -d virtualbox --swarm --swarm-master --swarm-discovery token://Cluster_ID swarm-master
 ```
+
+Après la création, il faut se déplace à la hote master :
+```
+eval "$(docker-machine env swarm-master)"
+```
+
+On passe maintenant à la création des 3 noœuds :
+```
+$ docker-machine create -d virtualbox --swarm --swarm-discovery token://5438f046c14733d64b72785de46fb167 swarm-node-01
+$ docker-machine create -d virtualbox --swarm --swarm-discovery token://5438f046c14733d64b72785de46fb167 swarm-node-02
+$ docker-machine create -d virtualbox --swarm --swarm-discovery token://5438f046c14733d64b72785de46fb167 swarm-node-03
+```
+
+Pour voir les machines qu'on a créé, on utilise la commande
+```
+$ docker-machine ls
+NAME            ACTIVE   DRIVER       STATE     URL                         SWARM                   DOCKER   ERRORS
+default         -        virtualbox   Running   tcp://192.168.99.100:2376                           v1.9.1   
+swarm-master    *        virtualbox   Running   tcp://192.168.99.101:2376   swarm-master (master)   v1.9.1   
+swarm-node-01   -        virtualbox   Running   tcp://192.168.99.102:2376   swarm-master            v1.9.1   
+swarm-node-02   -        virtualbox   Running   tcp://192.168.99.103:2376   swarm-master            v1.9.1   
+swarm-node-03   -        virtualbox   Running   tcp://192.168.99.104:2376   swarm-master            v1.9.1
+```
+On remarque que dans la liste, les 4 composants `swarm-master` `swarm-node-01` `swarm-node-02` `swarm-node-03` on la même valeur du champs "SWARM", cela implique qu'ils appartiennent tous au même cluster. La hote `default` était une machine crée avant le swarm master et elle ne contient pas au cluseter.
+
+## Création des containers
+
+### Le noœud de données
