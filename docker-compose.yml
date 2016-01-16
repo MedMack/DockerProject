@@ -1,0 +1,17 @@
+wordpress:
+  image: wordpress
+  links:
+    - mysql_ambassador:db
+  ports:
+    - 80:80
+  environment:
+    WORDPRESS_DB_HOST=db
+    WORDPRESS_DB_USER=mycloud
+    WORDPRESS_DB_PASSWORD=mycloud
+    WORDPRESS_DB_NAME=wordpress
+mysql_ambassador:
+  image: svendowideit/ambassador
+  expose:
+    - "3360"
+  environment:
+    DB_PORT_3306_TCP=tcp://192.168.99.103:3306
