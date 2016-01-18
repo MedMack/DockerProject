@@ -1,6 +1,6 @@
 # Projet Docker
 Il s'agit d'un projet universitaire de Cloud Computing en utilisant la nouvelle technologie prometteuse de [Docker](https:\\docker.com).
-Dans ce tutoriel, nous allons utiliser les différents technologies de Docker : `Docker Compose`, `Docker Swarm` et `Dockerfile` pour mettre en place une architecture qui utilise deux noœuds Wordpress qui communiquent avec une bd dans un noœud/host distant.
+Dans ce tutoriel, nous allons utiliser les différents technologies de Docker : `Docker Compose` et `Docker Swarm` pour mettre en place une architecture qui utilise deux noœuds Wordpress qui communiquent avec une bd dans un noœud/host distant.
 
 Ce schéma vous expliquera ce qu'on va réaliser :
 //image here
@@ -91,3 +91,52 @@ On remarque que dans la liste, les 4 composants `swarm-master` `swarm-node-01` `
 ## Création des containers
 
 ### Le noœud de données
+
+On choisi un noœud pour les données, dans ce cas on utilisera le `swarm-node-02` , on se déplace dans le noœud :
+```
+eval "$(docker-machine env swarm-node-02)"
+```
+Et on commence la création d'un container `mysql` avec ces informations :
+```
+docker run -d --name db -e MYSQL_ROOT_PASSWORD=root \
+> -e MYSQL_USER=mycloud -e MYSQL_PASSWORD=mycloud \
+> -e MYSQL_DATABASE=wordpress mysql
+```
+Il est temps maintenant pour utiliser `mysql_ambassador` qui va exposer les ports du container `mysql` pour les autres noœuds en mentionnant l'adresse ip du noœud (192.168.99.103) avec le port mysql (3360):
+
+```
+docker run -d --link db:db --name mysql_ambassador \
+> -p 3306:3306 svendowideit/ambassador
+```
+
+### Les noœuds Wordpress
+
+On se déplace maintenant au premier noœud pour créer le container wordpress qui va utiliser les données du noœud 2 :
+
+``` 
+eval "$(docker-machine env swarm-node-01)"
+```
+
+La création du container Wordpress et du container mysql_ambassador (qui va relier le même container dans le noœud 2) se font avec le fichier docker-compose.yml :
+
+```
+$ docker compose up -d
+```
+
+On fait du même pour le noœud 3 :
+
+```
+$ eval "$(docker-machine env swarm-node-03)"
+
+$ docker compose up -d
+```
+
+### Le test
+
+Le résultat sera affiché sur l'une des IP des noœuds 1 ou 3. Sur le navigateur, `192.168.99.102` et `192.168.99.104` donneront le même résultat. Une fois l'installation du Wordpress est terminée, on peut créer des pages de n'importe quelle hote et le résultat sera le même parce qu'on utilise une seule base de données.
+
+## Teste de la haute disponibilité
+
+Ce n'est pas une bonne pratique mais avec cette simple architecture, si on arrête le noœud 1 ou 3 le site Wordpress restera en fonction sur l'autre hote. Pour la haute disponibilité il faut des méchanismes automatiques pour suivre le fonctionnement des services comme `Heartbeat` et des technologies qui permettent le basculement au autres containers ou noœuds qui sont en marche comme le reverse proxy ou `HAproxy`.
+
+Toute contribution est la bienvenue.
